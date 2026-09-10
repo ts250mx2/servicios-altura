@@ -1,0 +1,89 @@
+@import "tailwindcss";
+
+/* =============================================================================
+   Servicios de Altura — "cuarto de control"
+   Identidad tomada de servicios-altura-page: navy #061a29 + amarillo #f5c400.
+   Densidad y disciplina de color tomadas de bodega-ia: el amarillo se gana
+   donde hay algo que tocar o decidir; nunca decorativo.
+   ============================================================================= */
+
+@theme {
+  --color-fondo:        #051622;
+  --color-superficie:   #0a2233;
+  --color-superficie-2: #0f2e42;
+  --color-borde:        #17384e;
+  --color-borde-fuerte: #26536f;
+
+  --color-tinta:   #eef5f8;
+  --color-tinta-2: #9db3c1;
+  --color-tinta-3: #63808f;
+
+  --color-acento:       #f5c400;
+  --color-acento-press: #d8ab00;
+  --color-sobre-acento: #051622;
+
+  --color-bueno:   #45d483;
+  --color-alerta:  #f5c400;
+  --color-serio:   #f79245;
+  --color-critico: #f4685f;
+
+  --color-series-1: #f5c400;
+  --color-series-2: #4bb3d4;
+  --color-series-3: #45d483;
+  --color-series-4: #f79245;
+  --color-series-5: #a98cf0;
+  --color-series-6: #f4685f;
+
+  --font-display: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  --font-sans: "Manrope", system-ui, -apple-system, sans-serif;
+  --font-mono: "Roboto Mono", ui-monospace, "SFMono-Regular", monospace;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  background: var(--color-fondo);
+  color: var(--color-tinta);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-acento);
+  outline-offset: 2px;
+}
+
+::selection { background: var(--color-acento); color: var(--color-sobre-acento); }
+
+/* Cifras en columnas: siempre tabulares para que alineen. */
+.num-tab { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+/* Títulos de sección y KPIs. */
+.display { font-family: var(--font-display); letter-spacing: -0.01em; text-transform: uppercase; }
+
+/* Filete amarillo que remata la barra lateral y el panel de acceso. */
+.linea-marca { border-top: 3px solid var(--color-acento); }
+
+/* Etiqueta pequeña de sección, estilo mono. */
+.etiqueta {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-tinta-3);
+}
+
+input, select, textarea, button { font: inherit; }
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+input[type="number"] { -moz-appearance: textfield; }
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--color-fondo); }
+::-webkit-scrollbar-thumb { background: var(--color-borde); border-radius: 5px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-borde-fuerte); }
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+}

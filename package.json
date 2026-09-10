@@ -1,0 +1,47 @@
+{
+  "name": "servicios-altura",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3053",
+    "build": "next build",
+    "start": "next start -p 3054",
+    "lint": "eslint",
+    "test": "vitest run",
+    "migrar": "tsx scripts/migrar.ts",
+    "usuario": "tsx scripts/crear-usuario.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.124.0",
+    "bcryptjs": "^3.0.3",
+    "clsx": "^2.1.1",
+    "exceljs": "^4.4.0",
+    "jose": "^6.2.12",
+    "jspdf": "^3.0.4",
+    "jspdf-autotable": "^5.0.8",
+    "lucide-react": "^1.43.0",
+    "mysql2": "^3.24.4",
+    "next": "^16.3.4",
+    "pdf-lib": "^1.17.1",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "sharp": "^0.35.4",
+    "tailwind-merge": "^3.6.0",
+    "unpdf": "^1.8.1",
+    "zod": "^4.6.1"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.7",
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^22.20.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "dotenv": "^17.4.2",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.3.4",
+    "tailwindcss": "^4.3.3",
+    "tsx": "^4.23.13",
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.0"
+  }
+}
