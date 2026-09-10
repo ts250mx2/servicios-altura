@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { TituloPagina } from "@/components/layout/Cascaron";
+import { ZonaCarga } from "@/components/importacion/ZonaCarga";
 import { BotonesDocumento } from "@/components/proyectos/BotonesDocumento";
 import { Boton, Carta, Selector, Vacio } from "@/components/ui/Basicos";
 import { Chip, ChipMargen, ChipStatus } from "@/components/ui/Chip";
@@ -25,6 +26,8 @@ export default async function Cotizaciones(props: {
         titulo="Cotizaciones"
         descripcion={`${filas.length} cotizaciones · ${formatoMoneda(cotizado)} cotizado · ${formatoMoneda(autorizado)} autorizado`}
       />
+
+      <div className="mb-4"><ZonaCarga solo="excel" compacta /></div>
 
       <Carta>
         <form className="mb-4 flex flex-wrap gap-2">

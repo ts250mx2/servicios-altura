@@ -2,6 +2,7 @@ import ExcelJS, { type Worksheet } from "exceljs";
 import { CONCEPTOS, type Concepto } from "@/lib/costeo/tipos";
 import { columna } from "@/lib/importacion/excel/celdas";
 import { FECHA, MONEDA, RELLENO_SUAVE, bytesDe, nuevoLibro } from "./excel-base";
+import { estilizarLibroCosteo } from "./excel-costeo-estilo";
 
 /**
  * Datos planos para armar el Excel de costeo. Es independiente de la base para
@@ -58,6 +59,7 @@ export async function excelCosteo(d: CosteoParaExcel): Promise<Uint8Array> {
   hojaGastoSimple(libro, "Epp", d, "EPP");
   hojaGastoSimple(libro, "Compra de Equipo", d, "EQUIPO");
   hojaTablaMontos(libro, d);
+  estilizarLibroCosteo(libro);
   return bytesDe(libro);
 }
 

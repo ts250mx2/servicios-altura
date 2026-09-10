@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Plus, Smartphone } from "lucide-react";
 import { TituloPagina } from "@/components/layout/Cascaron";
+import { ZonaCarga } from "@/components/importacion/ZonaCarga";
 import { BotonesDocumento } from "@/components/proyectos/BotonesDocumento";
 import { Boton, Carta, Selector, Vacio } from "@/components/ui/Basicos";
 import { ChipMargen, ChipRiesgo, ChipStatus } from "@/components/ui/Chip";
@@ -32,6 +33,8 @@ export default async function Levantamientos(props: {
           </div>
         }
       />
+
+      <div className="mb-4"><ZonaCarga solo="pdf" compacta /></div>
 
       <Carta>
         <form className="mb-4 flex flex-wrap gap-2">

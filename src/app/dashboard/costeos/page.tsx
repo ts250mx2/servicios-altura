@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { TituloPagina } from "@/components/layout/Cascaron";
+import { ZonaCarga } from "@/components/importacion/ZonaCarga";
 import { BotonesDocumento } from "@/components/proyectos/BotonesDocumento";
 import { Boton, Carta, Selector, Vacio } from "@/components/ui/Basicos";
 import { ChipMargen, ChipStatus } from "@/components/ui/Chip";
@@ -31,6 +32,8 @@ export default async function Costeos(props: {
         <Kpi etiqueta="Utilidad neta" valor={formatoMonedaCorta(utilidad)} />
         <Kpi etiqueta="Margen agregado" valor={formatoPorcentaje(margen)} />
       </div>
+
+      <div className="mb-4"><ZonaCarga solo="excel" compacta /></div>
 
       <Carta>
         <form className="mb-4 flex flex-wrap gap-2">
