@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Cliente, Insumo, Puesto } from "@/lib/consultas/catalogos";
+import { indiceUltimosCostos } from "@/lib/costeo/ultimos-costos";
 import { levantamientoVacio } from "./interpretar";
 import { buscarCliente, buscarPuesto, prepararRevision } from "./preparar";
 import type { LevantamientoExtraido } from "./tipos";
@@ -102,6 +103,27 @@ describe("prepararRevision", () => {
     expect(inicial.insumos[2]).toMatchObject({ idInsumo: null, aplica: false });
     expect(inicial.insumos[3]).toMatchObject({ idInsumo: 9, costo: 150, esHerramental: true });
     expect(avisos).toContain("2 partidas no están en el catálogo de insumos; captura su costo en Recursos.");
+  });
+
+  it("usa el último costo de costeos anteriores antes que el catálogo", () => {
+    const ultimosCostos = indiceUltimosCostos([
+      { IdInsumo: 3, Descripcion: "Cartuchos de silicón Duretán base de poliuretano negro", Unidades: 10, CostoPlan: 1600 },
+      { IdInsumo: null, Descripcion: "Rollos de maskingtape", Unidades: 30, CostoPlan: 1050 },
+    ]);
+    const { inicial, avisos } = prepararRevision(
+      extraido({
+        insumos: [
+          { cantidad: 70, descripcion: "CARTUCHOS DE SILICON DURETAN BASE DE POLIURETANO NEGRO" },
+          { cantidad: 4, descripcion: "ROLLOS DE MASKINGTAPE" },
+        ],
+        herramental: [{ cantidad: 5, descripcion: "Exactos" }],
+      }),
+      { clientes: CLIENTES, puestos: PUESTOS, insumos: INSUMOS, ultimosCostos },
+    );
+    expect(inicial.insumos[0]).toMatchObject({ idInsumo: 3, costo: 70 * 160 });
+    expect(inicial.insumos[1]).toMatchObject({ idInsumo: null, costo: 4 * 35 });
+    expect(inicial.insumos[2]).toMatchObject({ idInsumo: 9, costo: 150 });
+    expect(avisos.some((a) => a.includes("no están en el catálogo"))).toBe(false);
   });
 
   it("rellena lo que el PDF no trajo con valores seguros", () => {

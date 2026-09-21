@@ -1,4 +1,5 @@
 import type { Cliente, Insumo, Puesto } from "@/lib/consultas/catalogos";
+import { costoUnitarioDe, importePartida, SIN_ULTIMOS_COSTOS, type UltimosCostos } from "@/lib/costeo/ultimos-costos";
 import { hoyIso } from "@/lib/fechas";
 import type { LineaInsumo, LineaPersonal, ValoresIniciales } from "@/lib/levantamientos/tipos";
 import { normalizar } from "./lineas";
@@ -8,6 +9,8 @@ export interface Catalogos {
   clientes: Cliente[];
   puestos: Puesto[];
   insumos: Insumo[];
+  /** Último costo unitario de cada insumo en costeos anteriores; manda sobre el catálogo. */
+  ultimosCostos?: UltimosCostos;
 }
 
 type PersonalExtraido = LevantamientoExtraido["personal"][number];
@@ -24,11 +27,14 @@ export function prepararRevision(
 ): { inicial: ValoresIniciales; avisos: string[] } {
   const cliente = buscarCliente(datos.cliente, catalogos.clientes);
   const { lineas: personal, sinPuesto } = resolverPersonal(datos.personal, catalogos.puestos);
+  const ultimos = catalogos.ultimosCostos ?? SIN_ULTIMOS_COSTOS;
   const insumos = [
-    ...datos.insumos.map((p) => resolverPartida(p, false, catalogos.insumos)),
-    ...datos.herramental.map((p) => resolverPartida(p, true, catalogos.insumos)),
+    ...datos.insumos.map((p) => resolverPartida(p, false, catalogos.insumos, ultimos)),
+    ...datos.herramental.map((p) => resolverPartida(p, true, catalogos.insumos, ultimos)),
   ];
-  const sinCatalogo = insumos.filter((i) => i.idInsumo === null).length;
+  const sinCatalogo = insumos.filter(
+    (i) => i.idInsumo === null && costoUnitarioDe(i, ultimos) === null,
+  ).length;
 
   const avisos = [
     ...datos.avisos,
@@ -110,14 +116,21 @@ function resolverPersonal(
   );
 }
 
-function resolverPartida(partida: PartidaExtraida, esHerramental: boolean, catalogo: Insumo[]): LineaInsumo {
+function resolverPartida(
+  partida: PartidaExtraida,
+  esHerramental: boolean,
+  catalogo: Insumo[],
+  ultimos: UltimosCostos,
+): LineaInsumo {
   const buscado = normalizar(partida.descripcion);
   const encontrado = catalogo.find((i) => normalizar(i.Insumo) === buscado);
+  const idInsumo = encontrado?.IdInsumo ?? null;
+  const unitario = costoUnitarioDe({ idInsumo, descripcion: partida.descripcion }, ultimos, encontrado?.CostoUnitario);
   return {
-    idInsumo: encontrado?.IdInsumo ?? null,
+    idInsumo,
     descripcion: partida.descripcion,
     cantidad: partida.cantidad,
-    costo: encontrado ? Number(encontrado.CostoUnitario) * partida.cantidad : 0,
+    costo: unitario === null ? 0 : importePartida(unitario, partida.cantidad),
     esHerramental: encontrado ? encontrado.EsHerramental === 1 : esHerramental,
     aplica: !buscado.includes("NO APLICA"),
   };

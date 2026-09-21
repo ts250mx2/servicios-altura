@@ -5,8 +5,12 @@ import { useRouter } from "next/navigation";
 import { Check, ChevronLeft, ChevronRight, Plus, Trash2 } from "lucide-react";
 import { AreaTexto, Boton, Campo, Carta, Entrada, Selector } from "@/components/ui/Basicos";
 import { Chip } from "@/components/ui/Chip";
+import { EntradaNumero } from "@/components/ui/EntradaNumero";
 import { calcularCosteo, precioPorMargen, precioPorTarifa, semaforoMargen } from "@/lib/costeo/motor";
 import { ETIQUETA_CONCEPTO, CONCEPTOS, type Concepto } from "@/lib/costeo/tipos";
+import {
+  costoUnitarioDe, importePartida, SIN_ULTIMOS_COSTOS, type UltimosCostos,
+} from "@/lib/costeo/ultimos-costos";
 import type { Cliente, Insumo, Puesto } from "@/lib/consultas/catalogos";
 import { formatoMoneda, formatoPorcentaje } from "@/lib/formato";
 import { hoyIso } from "@/lib/fechas";
@@ -18,12 +22,15 @@ import { cn } from "@/lib/utils";
 const PASOS = ["Datos", "Trabajo", "Recursos", "Resultado"] as const;
 
 export function AsistenteCaptura({
-  clientes, puestos, insumos, folio, noCotizacion, parametros, modoCampo, inicial, idImportacion,
+  clientes, puestos, insumos, ultimosCostos = SIN_ULTIMOS_COSTOS, folio, noCotizacion, parametros,
+  modoCampo, inicial, idImportacion,
   modo = "nuevo", idLevantamiento, tieneCotizacion = false, pasoInicial = 0, statusActual = "BORRADOR",
 }: {
   clientes: Cliente[];
   puestos: Puesto[];
   insumos: Insumo[];
+  /** Último costo unitario de cada insumo en costeos anteriores; manda sobre el catálogo. */
+  ultimosCostos?: UltimosCostos;
   folio: number;
   noCotizacion: number;
   parametros: Record<string, number>;
@@ -494,39 +501,41 @@ export function AsistenteCaptura({
                             const encontrado = insumos.find(
                               (x) => x.Insumo.toUpperCase() === texto.toUpperCase(),
                             );
+                            const idInsumo = encontrado?.IdInsumo ?? null;
+                            const unitario = costoUnitarioDe(
+                              { idInsumo, descripcion: texto }, ultimosCostos, encontrado?.CostoUnitario,
+                            );
                             const copia = [...lineasInsumo];
                             copia[i] = {
                               ...copia[i],
                               descripcion: texto,
-                              idInsumo: encontrado?.IdInsumo ?? null,
+                              idInsumo,
                               esHerramental: encontrado ? encontrado.EsHerramental === 1 : copia[i].esHerramental,
-                              costo: encontrado
-                                ? Number(encontrado.CostoUnitario) * copia[i].cantidad
-                                : copia[i].costo,
+                              costo: unitario === null ? copia[i].costo : importePartida(unitario, copia[i].cantidad),
                             };
                             setLineasInsumo(copia);
                           }}
                         />
                       </div>
                       <div className="col-span-3 md:col-span-2">
-                        <Entrada type="number" min={0} step="0.01" value={l.cantidad} placeholder="Cant."
-                          onChange={(e) => {
-                            const cantidad = Number(e.target.value) || 0;
+                        <EntradaNumero valor={l.cantidad} placeholder="Cant." aria-label="Cantidad"
+                          alCambiar={(cantidad) => {
                             const cat = insumos.find((x) => x.IdInsumo === l.idInsumo);
+                            const unitario = costoUnitarioDe(l, ultimosCostos, cat?.CostoUnitario);
                             const copia = [...lineasInsumo];
                             copia[i] = {
                               ...copia[i],
                               cantidad,
-                              costo: cat ? Number(cat.CostoUnitario) * cantidad : copia[i].costo,
+                              costo: unitario === null ? copia[i].costo : importePartida(unitario, cantidad),
                             };
                             setLineasInsumo(copia);
                           }} />
                       </div>
                       <div className="col-span-5 md:col-span-2">
-                        <Entrada type="number" min={0} step="0.01" value={l.costo} placeholder="Costo"
-                          onChange={(e) => {
+                        <EntradaNumero valor={l.costo} placeholder="Costo" aria-label="Costo de la partida"
+                          alCambiar={(costo) => {
                             const copia = [...lineasInsumo];
-                            copia[i] = { ...copia[i], costo: Number(e.target.value) || 0 };
+                            copia[i] = { ...copia[i], costo };
                             setLineasInsumo(copia);
                           }} />
                       </div>

@@ -1,5 +1,6 @@
 import { consulta, consultaUna } from "@/lib/db";
 import type { Concepto } from "@/lib/costeo/tipos";
+import { indiceUltimosCostos, type CostoHistorico, type UltimosCostos } from "@/lib/costeo/ultimos-costos";
 
 export interface CosteoLista {
   IdCosteo: number;
@@ -120,6 +121,23 @@ export function insumosCosteoDe(idCosteo: number) {
     "SELECT IdCosteoInsumo, IdInsumo, Descripcion, Unidades, CostoPlan, CostoReal, Comentario FROM tblCosteoInsumos WHERE IdCosteo = ? ORDER BY IdCosteoInsumo",
     [idCosteo],
   );
+}
+
+const MAX_PARTIDAS_HISTORICO = 5000;
+
+/**
+ * Último costo unitario de cada insumo/herramental en costeos anteriores. Editar un
+ * costeo reinserta su detalle, así que el Id más alto es también el más actualizado.
+ */
+export async function ultimosCostosInsumo(): Promise<UltimosCostos> {
+  const filas = await consulta<CostoHistorico>(
+    `SELECT IdInsumo, Descripcion, Unidades, CostoPlan
+       FROM tblCosteoInsumos
+      WHERE Unidades > 0 AND CostoPlan > 0
+      ORDER BY IdCosteoInsumo DESC
+      LIMIT ${MAX_PARTIDAS_HISTORICO}`,
+  );
+  return indiceUltimosCostos(filas);
 }
 
 export function gastosDe(idCosteo: number) {

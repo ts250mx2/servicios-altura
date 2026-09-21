@@ -10,6 +10,7 @@ import { Boton, Carta } from "@/components/ui/Basicos";
 import {
   clientes, insumos, parametros, puestos, siguientesFolios, vendedores,
 } from "@/lib/consultas/catalogos";
+import { ultimosCostosInsumo } from "@/lib/consultas/costeos";
 import { importacionPorId, type ImportacionFila } from "@/lib/consultas/importaciones";
 import { levantamientoPorFolio } from "@/lib/consultas/levantamientos";
 import { urlImportacion } from "@/lib/importacion/archivos";
@@ -49,11 +50,11 @@ async function RevisionPdf({ importacion }: { importacion: ImportacionFila }) {
   const paquete = leerJson(importacion.JsonExtraido, PaqueteImportacion);
   if (!paquete) return <SinRevision importacion={importacion} />;
 
-  const [listaClientes, listaPuestos, listaInsumos, config, folios] = await Promise.all([
-    clientes(), puestos(), insumos(), parametros(), siguientesFolios(),
+  const [listaClientes, listaPuestos, listaInsumos, config, folios, ultimosCostos] = await Promise.all([
+    clientes(), puestos(), insumos(), parametros(), siguientesFolios(), ultimosCostosInsumo(),
   ]);
   const { inicial, avisos } = prepararRevision(paquete.datos, {
-    clientes: listaClientes, puestos: listaPuestos, insumos: listaInsumos,
+    clientes: listaClientes, puestos: listaPuestos, insumos: listaInsumos, ultimosCostos,
   });
   const folio = paquete.datos.folio ?? folios.folio;
   const noCotizacion = paquete.datos.noCotizacion ?? folios.noCotizacion;
@@ -76,6 +77,7 @@ async function RevisionPdf({ importacion }: { importacion: ImportacionFila }) {
         clientes={listaClientes}
         puestos={listaPuestos}
         insumos={listaInsumos}
+        ultimosCostos={ultimosCostos}
         folio={folio}
         noCotizacion={noCotizacion}
         parametros={config}

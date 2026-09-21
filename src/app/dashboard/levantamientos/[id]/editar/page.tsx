@@ -5,6 +5,7 @@ import { TituloPagina } from "@/components/layout/Cascaron";
 import { AsistenteCaptura } from "@/components/levantamientos/AsistenteCaptura";
 import { Boton } from "@/components/ui/Basicos";
 import { clientes, insumos, parametros, puestos, siguientesFolios } from "@/lib/consultas/catalogos";
+import { ultimosCostosInsumo } from "@/lib/consultas/costeos";
 import { valoresDesdeLevantamiento } from "@/lib/levantamientos/cargar";
 
 export const dynamic = "force-dynamic";
@@ -23,8 +24,8 @@ export default async function EditarLevantamiento(props: {
   const { ficha, inicial } = cargado;
   const tieneCotizacion = ficha.IdCotizacion !== null;
 
-  const [listaClientes, listaPuestos, listaInsumos, config, folios] = await Promise.all([
-    clientes(), puestos(), insumos(), parametros(), siguientesFolios(),
+  const [listaClientes, listaPuestos, listaInsumos, config, folios, ultimosCostos] = await Promise.all([
+    clientes(), puestos(), insumos(), parametros(), siguientesFolios(), ultimosCostosInsumo(),
   ]);
   const pasoInicial = Number(paso ?? 0);
 
@@ -47,6 +48,7 @@ export default async function EditarLevantamiento(props: {
         clientes={listaClientes}
         puestos={listaPuestos}
         insumos={listaInsumos}
+        ultimosCostos={ultimosCostos}
         folio={ficha.Folio}
         noCotizacion={folios.noCotizacion}
         parametros={config}
